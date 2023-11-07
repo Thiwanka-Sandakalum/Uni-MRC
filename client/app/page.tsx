@@ -1,112 +1,164 @@
-import Image from 'next/image'
+"use client";
+import ContainerSketelon from '@/components/ContainerSketelon';
+import Student from '@/components/Student';
+import StudentSkeleton from '@/components/StudentSkeleton';
+import axios from 'axios';
+import Fuse from 'fuse.js';
+import React , {useState , useEffect, SelectHTMLAttributes, ChangeEvent} from 'react'
+import Select from 'react-select'
+import { BeatLoader } from 'react-spinners';
 
-export default function Home() {
+type res = {
+  data:{
+    data:StData[]
+  }
+}
+
+type UniRes = {
+  data:{
+    universities:UniData[]
+  }
+}
+
+type CourseRes = {
+  data:{
+    courses:CourseData[]
+  }
+}
+
+export default function page() {
+
+  const options = [
+    { value: 'chocolate', label: 'Chocolate' },
+    { value: 'strawberry', label: 'Strawberry' },
+    { value: 'vanilla', label: 'Vanilla' }
+  ]
+
+  const [SearchingByName, setSearchingByName] = useState(false);
+
+  const [AllStudents, setAllStudents] = useState<StData[] | null>(null);
+  const [AllUnies, setAllUnies] = useState<UniData[] | null>(null);
+  const [AllCourses, setAllCourses] = useState<CourseData[] | null>(null);
+  const [StudentsForRender, setStudentsForRender] = useState<StData[] | null>(null);
+  const [CurrentUni, setCurrentUni] = useState<string | undefined>(undefined);
+  const [CurrentCourse, setCurrentCourse] = useState<string | undefined>(undefined);
+  
+  const [ControlerLoad, setControlerLoad] = useState(true);
+  const [Load, setLoad] = useState(true);
+  const [clean, setclean] = useState(false);
+
+  const HandleUniversity = async (choice:any) => {
+    setCurrentUni(choice?.value);
+
+    if(choice?.value && CurrentCourse){
+      setStudentsForRender(AllStudents?.filter(obj => obj.university === choice.value && obj.course === CurrentCourse) as StData[]);
+    }else if(choice?.value){
+     setStudentsForRender(AllStudents?.filter(obj => obj.university === choice.value) as StData[]); 
+    }
+    else if(CurrentCourse){
+      setStudentsForRender(AllStudents?.filter(obj => obj.course === CurrentCourse) as StData[]);
+    }
+    else{
+      setStudentsForRender(AllStudents);
+    }
+
+  }
+
+  const HandleCourse = async (choice:any) => {
+    setCurrentCourse(choice?.value);
+
+    if(choice?.value && CurrentUni){
+      setStudentsForRender(AllStudents?.filter(obj => obj.course === choice.value && obj.university === CurrentUni) as StData[]);
+    }else if(choice?.value){
+     setStudentsForRender(AllStudents?.filter(obj => obj.course === choice.value) as StData[]); 
+    }
+    else if(CurrentUni){
+      setStudentsForRender(AllStudents?.filter(obj => obj.university === CurrentUni) as StData[]);
+    }
+    else{
+      setStudentsForRender(AllStudents);
+    }
+
+  }
+  const HandleSearch = async (event:ChangeEvent<HTMLInputElement>) => {
+    if(event.target.value.length > 0){
+      if(CurrentCourse || CurrentUni){
+        const fuse = new Fuse<StData>(StudentsForRender as StData[], {keys:['name']});
+        setStudentsForRender(fuse.search(event.target.value).map(obj => obj.item))
+      }else{
+        const fuse = new Fuse<StData>(AllStudents as StData[], {keys:['name']});
+        setStudentsForRender(fuse.search(event.target.value).map(obj => obj.item))
+      }
+    }
+    else
+    {
+      HandleUniversity(undefined);
+      HandleCourse(undefined);
+    }
+    
+  }
+
+  useEffect(() => {
+
+    setLoad(true);
+    setControlerLoad(true);
+    async function getAllStudents(){
+
+      await new Promise( async (resolve) => setTimeout(() => {resolve("")}, 1000))
+      const {data:{universities}}:UniRes =  await axios.get('http://localhost:3453/api/universities');
+      setAllUnies(universities);
+      const {data:{courses}}:CourseRes =  await axios.get('http://localhost:3453/api/courses');
+      setAllCourses(courses);
+      
+      const {data:{data}}:res = await axios.get('http://localhost:3453/api/data');
+      setAllStudents(data);
+      setStudentsForRender(data);
+      setControlerLoad(false);
+      setLoad(false);
+    }
+    getAllStudents();
+
+  }, [])
+  
+
+
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <main className="w-full mx-auto min-h-screen">
+      {ControlerLoad ? <ContainerSketelon/> :<div className='w-[90%] sm:w-[80%] xl:w-[60%] mt-20 mx-auto p-5 rounded border bg-stone-50 text-stone-800'>
+        <h1 className='text-3xl leading-[40px] font-semibold '>Mahinda Rajapaksha College Government University Degree Holders Chart.</h1>
+
+        <div className="mt-10 w-full">
+          <h2 className="text-slate-500 font-semibold underline">Sort By</h2>
+          
+          <div className='w-full flex items-center mt-5'>
+            <Select className='flex-1' placeholder={'University Name'} id={'uni-select'} options={AllUnies?.map(arr => ({value:arr.university , label:arr.university}))} isClearable={true} onChange={HandleUniversity}/>
+          </div>
+
+          <p className='text-slate-500 font-semibold'>or</p>
+
+          <div className='w-full flex items-center'>
+            <Select className='flex-1' placeholder={'University Degree Program'} id={'course-select'} options={AllCourses?.map(arr => ({value:arr.course , label:arr.course}))} isClearable={true} onChange={HandleCourse}/>
+          </div>
+
+          <p className='text-slate-500 font-semibold mt-2'>or using ur name</p>
+          
+          <div className='relative'>
+            <input autoComplete='off' onChange={HandleSearch} type="text" placeholder='Your Name' className='w-full pr-14 p-2 border mt-3 border-stone-300 rounded placeholder:text-stone-500 focus-within:outline-blue-500 transition duration-300' />
+            {SearchingByName && <BeatLoader color="#78716C" size={5} className='absolute translate-y-1/3 right-0 pr-3 top-[25%]'/>}
+          </div>
         </div>
-      </div>
+      </div>}
+      <div className='w-[90%] sm:w-[80%] xl:w-[60%] mx-auto mt-20'>
+        {Load && <StudentSkeleton/>}
+        {StudentsForRender?.map((student:StData , i:number) => {
+           return(
+            <Student key={i} Student={student}/>
+          )
+        })}
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+        {StudentsForRender?.length === 0 && <p className='text-center underline text-stone-500 font-light text-sm'>0 results found</p>}
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
       </div>
     </main>
   )
