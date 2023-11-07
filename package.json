@@ -1,0 +1,16 @@
+{
+  "name": "uni_friends_finder",
+  "version": "1.0.0",
+  "description": "this is a application for find friend in your university.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./server/index.js"
+  },
+  "author": "thiwanka-sandakalum (KALUM)",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6"
+  }
+}
