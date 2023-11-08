@@ -7,7 +7,7 @@ export default function StudentSkeleton() {
   const [Skeletons, setSkeletons] = useState<number[]>();
 
   useEffect(() => {
-    setSkeletons(Array(10).fill(0));
+    setSkeletons(Array(3).fill(0));
   },[])
   
   return (
