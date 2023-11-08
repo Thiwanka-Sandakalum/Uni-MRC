@@ -48,6 +48,7 @@ export default function page() {
   const [clean, setclean] = useState(false);
 
   const HandleUniversity = async (choice:any) => {
+    setLoad(true);
     setCurrentUni(choice?.value);
 
     if(choice?.value && CurrentCourse){
@@ -61,12 +62,13 @@ export default function page() {
     else{
       setStudentsForRender(AllStudents);
     }
+    await new Promise((resolve) => setTimeout(() => { setLoad(false); resolve("")}, 1000))
 
   }
 
   const HandleCourse = async (choice:any) => {
+    setLoad(true);
     setCurrentCourse(choice?.value);
-
     if(choice?.value && CurrentUni){
       setStudentsForRender(AllStudents?.filter(obj => obj.course === choice.value && obj.university === CurrentUni) as StData[]);
     }else if(choice?.value){
@@ -78,9 +80,12 @@ export default function page() {
     else{
       setStudentsForRender(AllStudents);
     }
+    
+    await new Promise((resolve) => setTimeout(() => { setLoad(false); resolve("")}, 1000))
 
   }
   const HandleSearch = async (event:ChangeEvent<HTMLInputElement>) => {
+    setLoad(true);
     if(event.target.value.length > 0){
       if(CurrentCourse || CurrentUni){
         const fuse = new Fuse<StData>(StudentsForRender as StData[], {keys:['name']});
@@ -95,6 +100,7 @@ export default function page() {
       HandleUniversity(undefined);
       HandleCourse(undefined);
     }
+    await new Promise((resolve) => setTimeout(() => { setLoad(false); resolve("")}, 1000))
     
   }
 
@@ -112,7 +118,7 @@ export default function page() {
       
       const {data:{data}}:res = await axios.get('http://localhost:3453/api/data');
       setAllStudents(data);
-      setStudentsForRender(data);
+      // setStudentsForRender(data);
       setControlerLoad(false);
       setLoad(false);
     }
@@ -124,7 +130,7 @@ export default function page() {
 
 
   return (
-    <main className="w-full mx-auto min-h-screen">
+    <main className="w-full mx-auto">
       {ControlerLoad ? <ContainerSketelon/> :<div className='w-[90%] sm:w-[80%] xl:w-[60%] mt-20 mx-auto p-5 rounded border bg-stone-50 text-stone-800'>
         <h1 className='text-3xl leading-[40px] font-semibold '>Mahinda Rajapaksha College Government University Degree Holders Chart.</h1>
 
@@ -157,10 +163,12 @@ export default function page() {
           )
         })}
 
+        {StudentsForRender === null && !Load && <p className='text-center tracking-wider text-stone-500 font-light text-sm'>Search Students</p>}
+
         {StudentsForRender?.length === 0 && <p className='text-center underline text-stone-500 font-light text-sm'>0 results found</p>}
 
       </div>
-      {!Load && <footer className='w-full p-5 bg-stone-800 flex items-center justify-center'>
+      {!Load && StudentsForRender && StudentsForRender?.length > 5 &&  <footer className='w-full p-5  bg-stone-800 flex items-center justify-center'>
         <p className='font-semibold text-stone-200 tracking-wider'>Nipuna Nishan | Thiwanka Sandajalum</p>
       </footer>}
     </main>
