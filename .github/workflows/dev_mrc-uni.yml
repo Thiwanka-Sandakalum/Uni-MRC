@@ -71,4 +71,4 @@ jobs:
           app-name: 'mrc-uni'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_8932371E378B462C86B4F5DB4EBE90CE }}
-          package: .
+          package: ./server/index.js
