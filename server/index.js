@@ -1,10 +1,15 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
+const path = require('path');
 const { getCourseData, getUniData, getNameData, getData, getName } = require('./db.handle');
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3453;
 
 app.use(express.json());
+app.use(cors());
+app.use(express.static(path.join(__dirname, 'dist')));
+
 
 app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
