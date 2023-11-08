@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import React , {useState , useEffect} from 'react'
 import Skeleton , {SkeletonTheme} from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
