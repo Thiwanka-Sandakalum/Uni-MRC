@@ -170,7 +170,7 @@ export default function page() {
 
       </div>
       {!Load && StudentsForRender && StudentsForRender?.length > 5 &&  <footer className='w-full p-5  bg-stone-800 flex items-center justify-center'>
-        <p className='font-semibold text-stone-200 tracking-wider'>Nipuna Nishan | Thiwanka Sandajalum</p>
+        <p className='font-semibold text-stone-200 tracking-wider'>Nipuna Nishan | Thiwanka Sandakalum</p>
       </footer>}
     </main>
   )
