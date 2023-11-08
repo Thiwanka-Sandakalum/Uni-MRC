@@ -36,7 +36,6 @@ jobs:
 
       - name: Install dependencies for Express.js
         run: |
-          cd server 
           npm install
 
       - name: Zip artifacts for deployment
