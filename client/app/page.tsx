@@ -160,6 +160,9 @@ export default function page() {
         {StudentsForRender?.length === 0 && <p className='text-center underline text-stone-500 font-light text-sm'>0 results found</p>}
 
       </div>
+      {!Load && <footer className='w-full p-5 bg-stone-800 flex items-center justify-center'>
+        <p className='font-semibold text-stone-200 tracking-wider'>Nipuna Nishan | Thiwanka Sandajalum</p>
+      </footer>}
     </main>
   )
 }
