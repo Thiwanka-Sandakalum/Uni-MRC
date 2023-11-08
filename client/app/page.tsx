@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import ContainerSketelon from '@/components/ContainerSketelon';
 import Student from '@/components/Student';
@@ -111,12 +112,12 @@ export default function page() {
     async function getAllStudents(){
 
       await new Promise( async (resolve) => setTimeout(() => {resolve("")}, 1000))
-      const {data:{universities}}:UniRes =  await axios.get('http://localhost:3453/api/universities');
+      const {data:{universities}}:UniRes =  await axios.get('api/universities');
       setAllUnies(universities);
-      const {data:{courses}}:CourseRes =  await axios.get('http://localhost:3453/api/courses');
+      const {data:{courses}}:CourseRes =  await axios.get('api/courses');
       setAllCourses(courses);
       
-      const {data:{data}}:res = await axios.get('http://localhost:3453/api/data');
+      const {data:{data}}:res = await axios.get('api/data');
       setAllStudents(data);
       // setStudentsForRender(data);
       setControlerLoad(false);
